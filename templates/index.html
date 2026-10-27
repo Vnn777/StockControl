@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockControl | Gestão de Estoque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><span>▦</span> StockControl</div>
+        <p class="menu-label">MENU PRINCIPAL</p>
+        <a class="nav active" href="#painel">▦ &nbsp; Dashboard</a>
+        <a class="nav" href="#produtos">□ &nbsp; Produtos</a>
+        <a class="nav" href="#movimentos">⇄ &nbsp; Movimentações</a>
+        <div class="sidebar-bottom">Controle inteligente.<br><span>Gestão simplificada.</span></div>
+    </aside>
+
+    <main class="main" id="painel">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">GESTÃO EMPRESARIAL</p>
+                <h1>Visão geral</h1>
+                <p class="muted">Acompanhe seu estoque em tempo real.</p>
+            </div>
+            <button class="primary" onclick="abrirModal()">＋ Novo produto</button>
+        </header>
+
+        <section class="stats">
+            <article class="stat">
+                <div class="stat-icon blue">▦</div>
+                <p>Produtos cadastrados</p>
+                <strong id="totalProdutos">0</strong>
+                <small>Itens diferentes</small>
+            </article>
+            <article class="stat">
+                <div class="stat-icon orange">⚠</div>
+                <p>Estoque baixo</p>
+                <strong id="estoqueBaixo">0</strong>
+                <small>Precisam de atenção</small>
+            </article>
+            <article class="stat">
+                <div class="stat-icon green">□</div>
+                <p>Unidades em estoque</p>
+                <strong id="totalUnidades">0</strong>
+                <small>Unidades disponíveis</small>
+            </article>
+            <article class="stat">
+                <div class="stat-icon purple">⇄</div>
+                <p>Movimentações</p>
+                <strong id="totalMovimentos">0</strong>
+                <small>Operações registradas</small>
+            </article>
+        </section>
+
+        <section class="panel" id="produtos">
+            <div class="panel-heading">
+                <div>
+                    <h2>Inventário de produtos</h2>
+                    <p class="muted">Cadastre e acompanhe seus itens.</p>
+                </div>
+                <input id="busca" type="search" placeholder="⌕ Buscar produto..." oninput="carregarProdutos()">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PRODUTO</th><th>CÓDIGO</th><th>CATEGORIA</th>
+                            <th>QUANTIDADE</th><th>PREÇO</th><th>STATUS</th><th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaProdutos"></tbody>
+                </table>
+            </div>
+            <p id="semProdutos" class="empty">Nenhum produto cadastrado. Adicione seu primeiro item!</p>
+        </section>
+
+        <section class="panel" id="movimentos">
+            <div class="panel-heading">
+                <div>
+                    <h2>Movimentações recentes</h2>
+                    <p class="muted">Últimas entradas e saídas registradas.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>PRODUTO</th><th>OPERAÇÃO</th><th>QUANTIDADE</th><th>DATA</th></tr></thead>
+                    <tbody id="listaMovimentos"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="modalProduto">
+        <form id="formProduto">
+            <div class="modal-heading">
+                <div><h2>Novo produto</h2><p class="muted">Preencha os dados do item.</p></div>
+                <button type="button" class="close" onclick="fecharModal()">×</button>
+            </div>
+            <label>Nome do produto<input name="nome" required maxlength="100" placeholder="Ex.: Teclado USB"></label>
+            <label>Código SKU<input name="codigo" required maxlength="40" placeholder="Ex.: TEC-001"></label>
+            <label>Categoria<input name="categoria" required maxlength="60" placeholder="Ex.: Periféricos"></label>
+            <div class="form-grid">
+                <label>Quantidade<input name="quantidade" type="number" min="0" step="1" value="0" required></label>
+                <label>Estoque mínimo<input name="minimo" type="number" min="0" step="1" value="5" required></label>
+            </div>
+            <label>Preço unitário (R$)<input name="preco" type="number" min="0" step="0.01" value="0" required></label>
+            <p id="erroForm" class="error"></p>
+            <button class="primary full" type="submit">Cadastrar produto</button>
+        </form>
+    </dialog>
+
+    <dialog id="modalMovimento">
+        <form id="formMovimento">
+            <div class="modal-heading">
+                <div><h2 id="tituloMovimento">Movimentar estoque</h2><p class="muted">Registre uma entrada ou saída.</p></div>
+                <button type="button" class="close" onclick="fecharMovimento()">×</button>
+            </div>
+            <input type="hidden" name="produto_id">
+            <label>Produto<input id="nomeMovimento" disabled></label>
+            <label>Quantidade<input name="quantidade" type="number" min="1" step="1" required></label>
+            <p id="erroMovimento" class="error"></p>
+            <button class="primary full" type="submit">Confirmar movimentação</button>
+        </form>
+    </dialog>
+</body>
+</html>
