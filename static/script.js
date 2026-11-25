@@ -50,10 +50,7 @@ async function carregarProdutos() {
             strong.className = "product-name";
             strong.textContent = p.nome;
             nome.append(strong);
-            tr.append(nome, criarCelula(p.codigo), criarCelula(p.categoria),
-                criarCelula(p.quantidade),
-                criarCelula(Number(p.preco).toLocaleString("pt-BR",
-                    { style: "currency", currency: "BRL" })));
+            tr.append(nome, criarCelula(p.categoria), criarCelula(p.quantidade));
 
             const status = document.createElement("td");
             const badge = document.createElement("span");
@@ -96,7 +93,7 @@ $("formProduto").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const dados = Object.fromEntries(f.entries());
-    for (const campo of ["quantidade", "minimo", "preco"]) {
+    for (const campo of ["quantidade", "minimo"]) {
         dados[campo] = Number(dados[campo]);
     }
     try {
