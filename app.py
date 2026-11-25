@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, request, jsonify
 import sqlite3
+from uuid import uuid4
 from pathlib import Path
 
 app = Flask(__name__)
@@ -68,10 +69,10 @@ def listar_produtos():
     busca = request.args.get("busca", "").strip()
     with conectar() as con:
         produtos = con.execute("""
-            SELECT * FROM produtos
-            WHERE nome LIKE ? OR codigo LIKE ? OR categoria LIKE ?
+            SELECT id, nome, categoria, quantidade, minimo FROM produtos
+            WHERE nome LIKE ? OR categoria LIKE ?
             ORDER BY id DESC
-        """, (f"%{busca}%", f"%{busca}%", f"%{busca}%")).fetchall()
+        """, (f"%{busca}%", f"%{busca}%")).fetchall()
     return jsonify([dict(p) for p in produtos])
 
 
@@ -79,15 +80,15 @@ def listar_produtos():
 def cadastrar_produto():
     dados = request.get_json(silent=True) or {}
     nome = str(dados.get("nome", "")).strip()
-    codigo = str(dados.get("codigo", "")).strip()
+    codigo = uuid4().hex
     categoria = str(dados.get("categoria", "")).strip()
 
     try:
         quantidade = int(dados.get("quantidade", 0))
         minimo = int(dados.get("minimo", 5))
-        preco = float(dados.get("preco", 0))
-        if (not nome or not codigo or not categoria or
-                quantidade < 0 or minimo < 0 or preco < 0):
+        preco = 0
+        if (not nome or not categoria or
+                quantidade < 0 or minimo < 0):
             raise ValueError
     except (ValueError, TypeError):
         return jsonify(erro="Preencha os campos corretamente."), 400
@@ -107,7 +108,7 @@ def cadastrar_produto():
                 """, (produto_id, quantidade))
         return jsonify(mensagem="Produto cadastrado!"), 201
     except sqlite3.IntegrityError:
-        return jsonify(erro="Esse código de produto já existe."), 409
+        return jsonify(erro="Não foi possível cadastrar o produto."), 409
 
 
 @app.post("/api/movimentacoes")
